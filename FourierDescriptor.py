@@ -28,6 +28,7 @@ def reconstruct(descriptors, degree):
     descriptors = numpy.fft.fftshift(descriptors)
 
     # plot the descriptor in frequency domain just like in matlab
+    fig = plt.figure(1)
     plt.subplot(211)
     plt.plot(numpy.absolute(descriptors))
     center_index = len(descriptors)/2
@@ -50,7 +51,7 @@ src = cv2.imread("/Users/timfeirg/Documents/Fourier-Descriptor/licoln.tif", 0)
 cv2.imshow("src", src)
 retval, src = cv2.threshold(src, 127, 255, cv2.THRESH_BINARY)
 fourier_result, contour = findDescriptor(src)
-contour_reconstruct = reconstruct(fourier_result, 60)
+contour_reconstruct = reconstruct(fourier_result, 20)
 
 # normalization
 contour_reconstruct *= 800 / contour_reconstruct.max()
