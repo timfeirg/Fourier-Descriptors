@@ -28,16 +28,28 @@ def reconstruct(dscptr, degree):
     plt.subplot(211)
     plt.plot(numpy.absolute(dscptr))
     center_index = len(dscptr)/2
-    print(center_index)
     descriptor_in_use = dscptr[center_index - degree:center_index + degree]
     plt.subplot(212)
     plt.plot(numpy.absolute(descriptor_in_use))
-    plt.show()
+    # plt.show()
+    descriptor_in_use = numpy.fft.ifftshift(descriptor_in_use)
     contour_reconstruct = numpy.fft.ifft(descriptor_in_use)
-    pass
+    contour_reconstruct = numpy.array(
+        [contour_reconstruct.real, contour_reconstruct.imag])
+    contour_reconstruct = numpy.transpose(contour_reconstruct)
+    contour_reconstruct = numpy.expand_dims(contour_reconstruct, axis=1)
+    return contour_reconstruct
 
-black = numpy.zeros((500, 500), numpy.uint8)
+black = numpy.zeros((800, 800), numpy.uint8)
 star = cv2.imread("/Users/timfeirg/Documents/Fourier-Descriptor/star.jpg", 0)
 retval, star = cv2.threshold(star, 127, 255, cv2.THRESH_BINARY)
 fourier_result, contour = findDescriptor(star)
-contour_reconstruct = reconstruct(fourier_result, 50)
+contour_reconstruct = reconstruct(fourier_result, 60)
+
+# normalization
+contour_reconstruct *= 800 / contour_reconstruct.max()
+contour_reconstruct = contour_reconstruct.astype(numpy.int32, copy=False)
+cv2.drawContours(black, contour_reconstruct, -1, 255)
+cv2.imshow("black", black)
+cv2.waitKey()
+cv2.destroyAllWindows()
