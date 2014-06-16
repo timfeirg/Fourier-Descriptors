@@ -1,0 +1,5 @@
+I'm so in a hurry so I'll just show the result using 1/3 of all fourier-descriptors and reconstruct the image like so:
+
+![origin](licoln.tif)
+
+![reconstruction](reconstruct_result.jpg)
