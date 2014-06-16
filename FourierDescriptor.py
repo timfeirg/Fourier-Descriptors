@@ -5,7 +5,7 @@ import numpy
 import matplotlib.pyplot as plt
 
 MIN_DESCRIPTOR = 24
-TRAINING_SIZE = 10
+TRAINING_SIZE = 100
 
 
 def findDescriptor(img):
@@ -86,7 +86,6 @@ def sample_generater(sample1, sample2):
     response = numpy.array([0, 1])
     response = numpy.repeat(response, TRAINING_SIZE / 2, axis=0)
     response = response.astype(numpy.float32)
-    print(response.shape)
     training_set = numpy.empty(
         [TRAINING_SIZE, MIN_DESCRIPTOR], dtype=numpy.float32)
     # assign descriptors with noise to our training_set
@@ -95,9 +94,7 @@ def sample_generater(sample1, sample2):
         descriptors_sample1 = truncate_descriptor(
             descriptors_sample1,
             MIN_DESCRIPTOR)
-        # print(descriptors_sample1[:3])
         addNoise(descriptors_sample1)
-        # print(descriptors_sample1[:3])
         training_set[i] = numpy.absolute(descriptors_sample1)
         descriptors_sample2 = findDescriptor(sample2)
         descriptors_sample2 = truncate_descriptor(
@@ -105,7 +102,6 @@ def sample_generater(sample1, sample2):
             MIN_DESCRIPTOR)
         addNoise(descriptors_sample2)
         training_set[i + 1] = numpy.absolute(descriptors_sample2)
-    print(training_set.shape, response.shape)
     return training_set, response
 
 """Descriptor"""
@@ -135,3 +131,6 @@ model = cv2.SVM()
 model.train(training_set, response, params=svm_params)
 
 """Guessing!"""
+test_set, correct_answer = sample_generater(sample1, sample2)
+answer = [model.predict(s) for s in test_set]
+print(answer)
