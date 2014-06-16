@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 
 def findDescriptor(img):
+    """ findDescriptor(img) finds and returns the 
+    Fourier-Descriptor of the image contour"""
     contour = []
     contour, hierarchy = cv2.findContours(
         img,
@@ -21,17 +23,20 @@ def findDescriptor(img):
     return fourier_result, contour
 
 
-def reconstruct(dscptr, degree):
-    """ reconstruct(dscptr, degree) attempts to reconstruct the image
-    using the first [degree] descriptors of dscptr"""
-    dscptr = numpy.fft.fftshift(dscptr)
+def reconstruct(descriptors, degree):
+    """ reconstruct(descriptors, degree) attempts to reconstruct the image
+    using the first [degree] descriptors of descriptors"""
+    descriptors = numpy.fft.fftshift(descriptors)
+
+    # plot the descriptor in frequency domain just like in matlab
     plt.subplot(211)
-    plt.plot(numpy.absolute(dscptr))
-    center_index = len(dscptr)/2
-    descriptor_in_use = dscptr[center_index - degree:center_index + degree]
+    plt.plot(numpy.absolute(descriptors))
+    center_index = len(descriptors)/2
+    descriptor_in_use = descriptors[center_index - degree:center_index + degree]
     plt.subplot(212)
     plt.plot(numpy.absolute(descriptor_in_use))
-    # plt.show()
+    plt.show()
+
     descriptor_in_use = numpy.fft.ifftshift(descriptor_in_use)
     contour_reconstruct = numpy.fft.ifft(descriptor_in_use)
     contour_reconstruct = numpy.array(
@@ -48,6 +53,7 @@ contour_reconstruct = reconstruct(fourier_result, 60)
 
 # normalization
 contour_reconstruct *= 800 / contour_reconstruct.max()
+# type cast to int32
 contour_reconstruct = contour_reconstruct.astype(numpy.int32, copy=False)
 cv2.drawContours(black, contour_reconstruct, -1, 255)
 cv2.imshow("black", black)
