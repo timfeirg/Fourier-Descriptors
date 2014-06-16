@@ -46,6 +46,14 @@ def reconstruct(descriptors, degree):
     contour_reconstruct = numpy.expand_dims(contour_reconstruct, axis=1)
     return contour_reconstruct
 
+
+def addNoise(contour):
+    """this function adds gaussian noise to contour
+    contour should be a [N,2] numpy array"""
+    noise_maximum = contour.max() / 10
+
+
+
 black = numpy.zeros((800, 800), numpy.uint8)
 src = cv2.imread("/Users/timfeirg/Documents/Fourier-Descriptor/licoln.tif", 0)
 cv2.imshow("src", src)
