@@ -16,6 +16,13 @@ As mentioned, for all three classifiers the success rate are 100%, you can play 
 
 ![result](result.png)
 
+## The program, and the traps
+
+I tried very hard to KISS so the final code is quite intuitive from my point of view. There's no real reason for optimization.
+
+*   Here's a dangerous trap: when you're truncating, say, 20 from the fourier descriptors, it's vital that these 20 frequencies should be zero symmetric, or else you'd reconstruct weird shape.
+*   2 descriptors are enough for 100% success rate, print the training set and you'll know why.
+
 ## Reference
 
 The text book was somehow difficult to understand, I basically learn everything based on internet, so the approach I use may not be accurately the same as what it's like in the text book.
