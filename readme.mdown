@@ -1,3 +1,22 @@
+# The Computation Of Fourier Descriptors And Several Classifiers
+
+This is the final project for my _Digital Image Processing_ course, which is written in python with KISS in mind. Everything including error estimation are included in the code, run using python 2.x with `OpenCV` and `Numpy` will produce roughly the same result as shown below.
+
+## Reference
+
+The text book was somehow difficult to understand, I basically learn everything based on internet, so the approach I use may not be accurately the same as what it's like in the text book.
+
+### Minimum distance classifier
+
+*   [Machine Learning](http://opencv-python-tutroals.readthedocs.org/en/latest/py_tutorials/py_ml/py_table_of_contents_ml/py_table_of_contents_ml.html)
+*   [K-Nearest Neighbors¶](http://docs.opencv.org/modules/ml/doc/k_nearest_neighbors.html)
+*   [Minimum Distance Classifier](http://fourier.eng.hmc.edu/e161/lectures/classification/node7.html)
+
+### Bayers classifier
+
+*   [A simple explanation of Naive Bayes Classification](http://stackoverflow.com/questions/10059594/a-simple-explanation-of-naive-bayes-classification)
+*   [Normal Bayes Classifier](http://docs.opencv.org/2.4.2/modules/ml/doc/normal_bayes_classifier.html)
+
 I'm so in a hurry so I'll just show the result using 1/3 of all fourier-descriptors and reconstruct the image like so:
 
 ![in freq domain](freqDomain.png)

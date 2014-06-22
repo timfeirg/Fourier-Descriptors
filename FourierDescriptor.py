@@ -2,9 +2,8 @@
 
 import cv2
 import numpy
-import matplotlib.pyplot as plt
 
-MIN_DESCRIPTOR = 24
+MIN_DESCRIPTOR = 8  # surprisingly enough, 2 descriptors are already enough
 TRAINING_SIZE = 100
 
 
@@ -44,13 +43,6 @@ def reconstruct(descriptors, degree):
     using the first [degree] descriptors of descriptors"""
     descriptors = numpy.fft.fftshift(descriptors)
     descriptors = truncate_descriptor(descriptors, degree)
-    # plot the descriptor in frequency domain just like in matlab
-    plt.figure(1)
-    plt.subplot(211)
-    plt.plot(numpy.absolute(descriptors))
-    plt.subplot(212)
-    plt.plot(numpy.absolute(descriptor_in_use))
-    # plt.show()
 
     descriptor_in_use = numpy.fft.ifftshift(descriptor_in_use)
     contour_reconstruct = numpy.fft.ifft(descriptor_in_use)
@@ -65,26 +57,22 @@ def reconstruct(descriptors, degree):
     black = numpy.zeros((800, 800), numpy.uint8)
 
     cv2.drawContours(black, contour_reconstruct, -1, 255, thickness=-1)
-    #cv2.imshow("black", black)
-    # cv2.waitKey(1000)
-    # cv2.destroyAllWindows()
     return descriptor_in_use
 
 
 def addNoise(descriptors):
     """this function adds gaussian noise to descriptors
     descriptors should be a [N,2] numpy array"""
-    scale = descriptors.max() / 50
-    #print('descriptors.max = ', descriptors.max())
-    #print('scale = ', scale)
+    scale = descriptors.max() / 10
     noise = numpy.random.normal(0, scale, descriptors.shape[0])
+    noise = noise + 1j * noise
     descriptors += noise
 
 
 def sample_generater(sample1, sample2):
     """this function generates training_set, also for testing"""
     response = numpy.array([0, 1])
-    response = numpy.repeat(response, TRAINING_SIZE / 2, axis=0)
+    response = numpy.tile(response, TRAINING_SIZE / 2)
     response = response.astype(numpy.float32)
     training_set = numpy.empty(
         [TRAINING_SIZE, MIN_DESCRIPTOR], dtype=numpy.float32)
@@ -109,8 +97,9 @@ def sample_generater(sample1, sample2):
 #retval, src = cv2.threshold(src, 127, 255, cv2.THRESH_BINARY)
 #fourier_result, contour = findDescriptor(src)
 #contour_reconstruct = reconstruct(fourier_result, 20)
+"""Descriptor END"""
 
-"""generating training set"""
+"""generate training_set"""
 # import images and treat
 sample1 = cv2.imread(
     "/Users/timfeirg/Documents/Fourier-Descriptor/plane1.tiff",
@@ -118,19 +107,48 @@ sample1 = cv2.imread(
 sample2 = cv2.imread(
     "/Users/timfeirg/Documents/Fourier-Descriptor/plane2.tiff",
     0)
+# prepocess
 retval, sample1 = cv2.threshold(sample1, 127, 255, cv2.THRESH_BINARY_INV)
 retval, sample2 = cv2.threshold(sample2, 127, 255, cv2.THRESH_BINARY_INV)
+del retval  # useless
 training_set, response = sample_generater(sample1, sample2)
-svm_params = dict(
-    kernel_type=cv2.SVM_LINEAR,
-    svm_type=cv2.SVM_C_SVC,
-    C=1
-)
-"""Training!"""
-model = cv2.SVM()
-model.train(training_set, response, params=svm_params)
-
-"""Guessing!"""
 test_set, correct_answer = sample_generater(sample1, sample2)
-answer = [model.predict(s) for s in test_set]
-print(answer)
+"""generate training_set END"""
+
+"""SVM START"""
+#"""Training!"""
+#svm_model = cv2.SVM()
+#svm_model.train(training_set, response, params=svm_params)
+
+# set up parameters for SVM
+ # svm_params = dict(
+     # kernel_type=cv2.SVM_LINEAR,
+     # svm_type=cv2.SVM_C_SVC,
+     # C=1
+#)
+
+#"""Guessing part, to my surprise SVM training is already perfect with
+# 2 descriptors"""
+#answer_SVM = [svm_model.predict(s) for s in test_set]
+#answer_SVM = numpy.array(answer_SVM)
+#error_rate_SVM = numpy.sum(numpy.in1d(correct_answer, answer_SVM)) / TRAINING_SIZE
+#print('For SVM, error rate (0~1) = ', error_rate_SVM)
+"""SVM END"""
+
+"""Minimum distance classifier"""
+#k_nearest = cv2.KNearest(training_set, response)
+#ret, answer_KNN, neignbours, distance = k_nearest.find_nearest(training_set, 3)
+#error_rate_KNN = numpy.sum(numpy.in1d(correct_answer, answer_KNN)) / TRAINING_SIZE
+#print('For KNN, error_rate_KNN = ', error_rate_KNN)
+"""Minimum distance classifier END"""
+
+"""Bayers classifier"""
+bayers_model = cv2.NormalBayesClassifier()
+bayers_model.train(training_set, response)
+retval, answer_bayers = bayers_model.predict(test_set)
+error_rate_bayers = numpy.sum(
+    numpy.in1d(
+        correct_answer,
+        answer_bayers)) / TRAINING_SIZE
+print('For bayers_model, error_rate_bayers = ', error_rate_bayers)
+"""Bayers classifier END"""
