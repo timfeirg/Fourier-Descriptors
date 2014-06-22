@@ -14,7 +14,7 @@ I took a long time accepting the fact that the classifiers works too well to bel
 
 As mentioned, for all three classifiers the success rate are 100%, you can play with the noise, that ought to make a difference. The following screenshot is the result using 18 descriptors.
 
-！[result](result.png)
+![result](result.png)
 
 ## Reference
 
