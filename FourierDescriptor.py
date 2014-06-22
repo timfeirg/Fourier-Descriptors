@@ -3,7 +3,7 @@
 import cv2
 import numpy
 
-MIN_DESCRIPTOR = 8  # surprisingly enough, 2 descriptors are already enough
+MIN_DESCRIPTOR = 18  # surprisingly enough, 2 descriptors are already enough
 TRAINING_SIZE = 100
 
 
@@ -16,47 +16,49 @@ def findDescriptor(img):
         cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_NONE,
         contour)
-    #print('contour report: length = ', len(contour), 'to ', len(contour[0]))
-    black = numpy.zeros((800, 800), numpy.uint8)
-    cv2.drawContours(black, contour, -1, 255, thickness=-1)
-    #cv2.imshow("black", black)
-    # cv2.waitKey(500)
-    # cv2.destroyAllWindows()
     contour_array = contour[0][:, 0, :]
     contour_complex = numpy.empty(contour_array.shape[:-1], dtype=complex)
     contour_complex.real = contour_array[:, 0]
     contour_complex.imag = contour_array[:, 1]
     fourier_result = numpy.fft.fft(contour_complex)
-    #print('descriptors report: length = ', len(fourier_result), type(fourier_result))
     return fourier_result
 
 
 def truncate_descriptor(descriptors, degree):
-    center_index = len(descriptors)/2 - 1
+    """this function truncates an unshifted fourier descriptor array
+    and returns one also unshifted"""
+    descriptors = numpy.fft.fftshift(descriptors)
+    center_index = len(descriptors) / 2
     descriptors = descriptors[
         center_index - degree / 2:center_index + degree / 2]
+    descriptors = numpy.fft.ifftshift(descriptors)
     return descriptors
 
 
 def reconstruct(descriptors, degree):
     """ reconstruct(descriptors, degree) attempts to reconstruct the image
     using the first [degree] descriptors of descriptors"""
-    descriptors = numpy.fft.fftshift(descriptors)
-    descriptors = truncate_descriptor(descriptors, degree)
-
-    descriptor_in_use = numpy.fft.ifftshift(descriptor_in_use)
+    # truncate the long list of descriptors to certain length
+    descriptor_in_use = truncate_descriptor(descriptors, degree)
     contour_reconstruct = numpy.fft.ifft(descriptor_in_use)
     contour_reconstruct = numpy.array(
         [contour_reconstruct.real, contour_reconstruct.imag])
     contour_reconstruct = numpy.transpose(contour_reconstruct)
     contour_reconstruct = numpy.expand_dims(contour_reconstruct, axis=1)
+    # make positive
+    if contour_reconstruct.min() < 0:
+        contour_reconstruct -= contour_reconstruct.min()
     # normalization
-    contour_reconstruct *= 500 / contour_reconstruct.max()
+    contour_reconstruct *= 800 / contour_reconstruct.max()
     # type cast to int32
     contour_reconstruct = contour_reconstruct.astype(numpy.int32, copy=False)
     black = numpy.zeros((800, 800), numpy.uint8)
-
+    # draw and visualize
     cv2.drawContours(black, contour_reconstruct, -1, 255, thickness=-1)
+    cv2.imshow("black", black)
+    cv2.waitKey(1000)
+    cv2.imwrite("reconstruct_result.jpg", black)
+    cv2.destroyAllWindows()
     return descriptor_in_use
 
 
@@ -92,12 +94,6 @@ def sample_generater(sample1, sample2):
         training_set[i + 1] = numpy.absolute(descriptors_sample2)
     return training_set, response
 
-"""Descriptor"""
-#src = cv2.imread("/Users/timfeirg/Documents/Fourier-Descriptor/licoln.tif", 0)
-#retval, src = cv2.threshold(src, 127, 255, cv2.THRESH_BINARY)
-#fourier_result, contour = findDescriptor(src)
-#contour_reconstruct = reconstruct(fourier_result, 20)
-"""Descriptor END"""
 
 """generate training_set"""
 # import images and treat
@@ -112,34 +108,47 @@ retval, sample1 = cv2.threshold(sample1, 127, 255, cv2.THRESH_BINARY_INV)
 retval, sample2 = cv2.threshold(sample2, 127, 255, cv2.THRESH_BINARY_INV)
 del retval  # useless
 training_set, response = sample_generater(sample1, sample2)
+"""The following line of code prints out training_set, so that you can
+observe the training data with your bare eye, to see why only 2 descriptors are
+already enough knowledge for the classifier"""
+# print(training_set)
 test_set, correct_answer = sample_generater(sample1, sample2)
 """generate training_set END"""
 
+"""Mission 1: Calculate fourier descriptor
+and reconstruct using minimum amout of descriptors"""
+fourier_result = findDescriptor(sample1)
+contour_reconstruct = reconstruct(fourier_result, MIN_DESCRIPTOR)
+"""Mission 1 END"""
+
 """SVM START"""
-#"""Training!"""
-#svm_model = cv2.SVM()
-#svm_model.train(training_set, response, params=svm_params)
-
 # set up parameters for SVM
- # svm_params = dict(
-     # kernel_type=cv2.SVM_LINEAR,
-     # svm_type=cv2.SVM_C_SVC,
-     # C=1
-#)
-
-#"""Guessing part, to my surprise SVM training is already perfect with
-# 2 descriptors"""
-#answer_SVM = [svm_model.predict(s) for s in test_set]
-#answer_SVM = numpy.array(answer_SVM)
-#error_rate_SVM = numpy.sum(numpy.in1d(correct_answer, answer_SVM)) / TRAINING_SIZE
-#print('For SVM, error rate (0~1) = ', error_rate_SVM)
+svm_params = dict(
+    kernel_type=cv2.SVM_LINEAR,
+    svm_type=cv2.SVM_C_SVC,
+    C=1
+)
+# Training
+svm_model = cv2.SVM()
+svm_model.train(training_set, response, params=svm_params)
+# To my surprise SVM training is already perfect with 2 descriptors
+answer_SVM = [svm_model.predict(s) for s in test_set]
+answer_SVM = numpy.array(answer_SVM)
+error_rate_SVM = numpy.sum(
+    numpy.in1d(
+        correct_answer,
+        answer_SVM)) / TRAINING_SIZE
+print('For SVM, error rate (0~1) = ', error_rate_SVM)
 """SVM END"""
 
 """Minimum distance classifier"""
-#k_nearest = cv2.KNearest(training_set, response)
-#ret, answer_KNN, neignbours, distance = k_nearest.find_nearest(training_set, 3)
-#error_rate_KNN = numpy.sum(numpy.in1d(correct_answer, answer_KNN)) / TRAINING_SIZE
-#print('For KNN, error_rate_KNN = ', error_rate_KNN)
+k_nearest = cv2.KNearest(training_set, response)
+ret, answer_KNN, neignbours, distance = k_nearest.find_nearest(training_set, 3)
+error_rate_KNN = numpy.sum(
+    numpy.in1d(
+        correct_answer,
+        answer_KNN)) / TRAINING_SIZE
+print('For KNN, error_rate_KNN = ', error_rate_KNN)
 """Minimum distance classifier END"""
 
 """Bayers classifier"""
@@ -150,5 +159,5 @@ error_rate_bayers = numpy.sum(
     numpy.in1d(
         correct_answer,
         answer_bayers)) / TRAINING_SIZE
-print('For bayers_model, error_rate_bayers = ', error_rate_bayers)
+print("For bayers_model, error_rate_bayers =  ", error_rate_bayers)
 """Bayers classifier END"""
