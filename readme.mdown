@@ -2,6 +2,20 @@
 
 This is the final project for my _Digital Image Processing_ course, which is written in python with KISS in mind. Everything including error estimation are included in the code, run using python 2.x with `OpenCV` and `Numpy` will produce roughly the same result as shown below.
 
+The project is merely [Laboratory Projects](https://www.evernote.com/shard/s126/sh/ad0fae6a-4112-41cb-afbf-6db675cf3cdd/72d1ec9e55460d9d72c94332f93eadab) for _Digital Image Processing_ by _Gonzalez and Woods_, project 12, go take a look.
+
+## Summary
+
+In a word, I'm trying to compute the fourier descriptors of an arbitrary shape (the shape must be white on black BTW), and reconstruct the contour of the image using the minimum number of descriptors. And based on these descriptors that I've selected I try to construct SVM classifier, Bayers classifier, and minimum distance classifier using descriptors contaiminated by gaussian noise.
+
+I took a long time accepting the fact that the classifiers works too well to believe, in all three cases the classifiers gives a success rate of 100%, I managed to explain within [the program](FourierDescriptor.py).
+
+## The result
+
+As mentioned, for all three classifiers the success rate are 100%, you can play with the noise, that ought to make a difference. The following screenshot is the result using 18 descriptors.
+
+[result](result.png)
+
 ## Reference
 
 The text book was somehow difficult to understand, I basically learn everything based on internet, so the approach I use may not be accurately the same as what it's like in the text book.
@@ -17,8 +31,10 @@ The text book was somehow difficult to understand, I basically learn everything 
 *   [A simple explanation of Naive Bayes Classification](http://stackoverflow.com/questions/10059594/a-simple-explanation-of-naive-bayes-classification)
 *   [Normal Bayes Classifier](http://docs.opencv.org/2.4.2/modules/ml/doc/normal_bayes_classifier.html)
 
-I'm so in a hurry so I'll just show the result using 1/3 of all fourier-descriptors and reconstruct the image like so:
+### Misc
 
-![in freq domain](freqDomain.png)
+Check out all the other stuff inside this repository to see if there's anything helpful, there're all sorts of pdf files for reading.
+
+I'm so in a hurry so I'll just show the result using 1/3 of all fourier-descriptors and reconstruct the image like so:
 
 ![reconstruction](reconstruct_result.jpg)

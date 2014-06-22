@@ -134,30 +134,30 @@ svm_model.train(training_set, response, params=svm_params)
 # To my surprise SVM training is already perfect with 2 descriptors
 answer_SVM = [svm_model.predict(s) for s in test_set]
 answer_SVM = numpy.array(answer_SVM)
-error_rate_SVM = numpy.sum(
+success_rate_SVM = numpy.sum(
     numpy.in1d(
         correct_answer,
         answer_SVM)) / TRAINING_SIZE
-print('For SVM, error rate (0~1) = ', error_rate_SVM)
+print('For SVM, success rate (0~1) = ', success_rate_SVM)
 """SVM END"""
 
 """Minimum distance classifier"""
 k_nearest = cv2.KNearest(training_set, response)
 ret, answer_KNN, neignbours, distance = k_nearest.find_nearest(training_set, 3)
-error_rate_KNN = numpy.sum(
+success_rate_KNN = numpy.sum(
     numpy.in1d(
         correct_answer,
         answer_KNN)) / TRAINING_SIZE
-print('For KNN, error_rate_KNN = ', error_rate_KNN)
+print('For KNN, success_rate_KNN = ', success_rate_KNN)
 """Minimum distance classifier END"""
 
 """Bayers classifier"""
 bayers_model = cv2.NormalBayesClassifier()
 bayers_model.train(training_set, response)
 retval, answer_bayers = bayers_model.predict(test_set)
-error_rate_bayers = numpy.sum(
+success_rate_bayers = numpy.sum(
     numpy.in1d(
         correct_answer,
         answer_bayers)) / TRAINING_SIZE
-print("For bayers_model, error_rate_bayers =  ", error_rate_bayers)
+print("For bayers_model, success_rate_bayers =  ", success_rate_bayers)
 """Bayers classifier END"""
