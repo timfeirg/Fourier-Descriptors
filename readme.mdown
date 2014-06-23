@@ -2,7 +2,7 @@
 
 This is the final project for my _Digital Image Processing_ course, which is written in python with KISS in mind. Everything including error estimation are included in the code, run using python 2.x with `OpenCV` and `Numpy` will produce roughly the same result as shown below.
 
-The project is merely [Laboratory Projects](https://www.evernote.com/shard/s126/sh/ad0fae6a-4112-41cb-afbf-6db675cf3cdd/72d1ec9e55460d9d72c94332f93eadab) for _Digital Image Processing_ by _Gonzalez and Woods_, project 12, go take a look.
+The project is merely [Laboratory Projects](https://www.evernote.com/shard/s126/sh/ad0fae6a-4112-41cb-afbf-6db675cf3cdd/72d1ec9e55460d9d72c94332f93eadab) for _Digital Image Processing_ by _Gonzalez and Woods_, project 12 ([中文版](mission_chinese.pptx)) , go take a look.
 
 ## Summary
 
