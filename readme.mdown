@@ -1,6 +1,8 @@
+Really horrible work from college. Sorry, internet.
+
 # The Computation Of Fourier Descriptors And Several Classifiers
 
-This is the final project for my _Digital Image Processing_ course, which is written in python with KISS in mind. Everything including error estimation are included in the code, run using python 2.x with `OpenCV` and `Numpy` will produce roughly the same result as shown below.
+This is the final project for my _Digital Image Processing_ course, written in python. Everything including error estimation are included in the code, run using python 2.x with `OpenCV` and `Numpy` will produce roughly the same result as shown below.
 
 The project is merely [Laboratory Projects](https://www.evernote.com/shard/s126/sh/ad0fae6a-4112-41cb-afbf-6db675cf3cdd/72d1ec9e55460d9d72c94332f93eadab) for _Digital Image Processing_ by _Gonzalez and Woods_, project 12 ([中文版](mission_chinese.pptx)) , go take a look.
 
@@ -18,9 +20,7 @@ As mentioned, for all three classifiers the success rate are 100%, you can play 
 
 ## The program, and the traps
 
-I tried very hard to KISS so the final code is quite intuitive from my point of view. There's no real reason for optimization.
-
-*   Here's a dangerous trap: when you're truncating, say, 20 from the fourier descriptors, it's vital that these 20 frequencies should be zero symmetric, or else you'd reconstruct weird shape.
+*   when you're truncating, say, 20 from the fourier descriptors, it's vital that these 20 frequencies should be zero symmetric, or else you'd reconstruct weird shape.
 *   2 descriptors are enough for 100% success rate, print the training set and you'll know why.
 
 ## Reference
